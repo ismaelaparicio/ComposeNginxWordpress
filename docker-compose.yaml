@@ -1,0 +1,96 @@
+version: '3.6'
+
+services:
+  nginx:
+    image: nginx:1.21.5-alpine
+    # image: ubuntu/nginx
+    container_name: ${APP_NAME}-nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro    
+      # - ./nginx/:/etc/nginx/conf.d/:ro    
+      # - ./nginx/error_log.log:/etc/nginx/error_log.log:rw
+      # - ./nginx/cache/:/etc/nginx/cache:rw
+      - ./nginxlog/:/var/log/nginx/
+      - ./src:/var/www/html:rw,cached
+      - ./certs:/etc/certs:ro
+    environment:
+       - "NGINX_ENVSUBST_TEMPLATE_SUFFIX=.conf"
+       - "DOMAIN=${DOMAIN}"
+    depends_on:
+      - wordpress
+    # restart: always
+
+  wordpress:
+    build:
+      context: .
+      dockerfile: WordpressDockerfile
+    container_name: ${APP_NAME}-wordpress
+    restart: always
+    ports:
+      - 8080:80
+    volumes:
+      - ./src:/var/www/html:rw,cached
+      - ./config/php.ini:/usr/local/etc/php/conf.d/php.ini
+    environment:
+      WORDPRESS_DB_HOST: wordpressdb
+      WORDPRESS_DB_USER: ${DB_USER}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
+      WORDPRESS_DB_NAME: ${DB_NAME}
+    depends_on:
+      - wordpressdb
+      - mailhog
+
+  wordpressdb:
+    image: mysql:5.7
+    container_name: ${APP_NAME}-wordpressdb
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - wordpressdb:/var/lib/mysql
+   
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: ${APP_NAME}-phpmyadmin
+    volumes:
+      - ./config/phpmyadmin.ini:/usr/local/etc/php/conf.d/phpmyadmin.ini
+    environment:
+      PMA_HOST: wordpressdb
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+    ports:
+      - '8082:80'
+    links:
+      - mysql:mysql
+    depends_on:
+      - wordpressdb
+
+  mailhog:
+    container_name: ${APP_NAME}-mailhog
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  composer:
+    image: composer
+    container_name: ${APP_NAME}-composer
+    working_dir: /var/www/html
+    restart: 'no'
+    volumes:
+      - ./src:/var/www/html:rw,cached
+
+volumes:
+  wordpress:
+  wordpressdb:
+
+# networks:
+#   app-network:
+#     driver: bridge
