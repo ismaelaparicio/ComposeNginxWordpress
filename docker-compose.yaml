@@ -50,7 +50,7 @@ services:
 
   wordpressdb:
     image: mysql:5.7
-    # image: mariadb
+    # image: mariadb:10.7.1
     container_name: ${APP_NAME}-wordpressdb
     restart: unless-stopped
     environment:
