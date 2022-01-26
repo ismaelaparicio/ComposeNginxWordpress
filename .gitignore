@@ -42,3 +42,6 @@ bin
 
 # Custom
 .DS_Store
+
+# log
+nginxlog
