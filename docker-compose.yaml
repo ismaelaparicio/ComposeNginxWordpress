@@ -3,13 +3,13 @@ version: '3.6'
 services:
   nginx:
     image: nginx:1.21.5-alpine
-    # image: ubuntu/nginx
     container_name: ${APP_NAME}-nginx
     ports:
       - '80:80'
       - '443:443'
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx:/etc/nginx/conf.d:ro
       - ./nginxlog/:/var/log/nginx/
       - ./src:/var/www/html:rw,cached
       - ./certs:/etc/certs:ro
@@ -18,32 +18,41 @@ services:
        - DOMAIN=${DOMAIN}
     depends_on:
       - wordpress
-    restart: always
+    links:
+      - wordpress
+    restart: unless-stopped
 
   wordpress:
     build:
       context: .
       dockerfile: WordpressDockerfile
+    # image: wordpress:5.8.3-fpm
+    # image: wordpress:5.8.3-apache
     container_name: ${APP_NAME}-wordpress
-    restart: always
-    ports:
-      - 8080:80
+    restart: unless-stopped
+    # ports:
+      # - 8090:9000
+      # - 8080:80
     volumes:
       - ./src:/var/www/html:rw,cached
       - ./config/php.ini:/usr/local/etc/php/conf.d/php.ini
     environment:
-      WORDPRESS_DB_HOST: wordpressdb
+      WORDPRESS_DB_HOST: wordpressdb:3306
       WORDPRESS_DB_USER: ${DB_USER}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
       WORDPRESS_DB_NAME: ${DB_NAME}
     depends_on:
       - wordpressdb
       - mailhog
+    links:
+      - wordpressdb
+      - mailhog
 
   wordpressdb:
     image: mysql:5.7
+    # image: mariadb
     container_name: ${APP_NAME}-wordpressdb
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
