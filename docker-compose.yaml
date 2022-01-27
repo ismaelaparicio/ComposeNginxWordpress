@@ -26,12 +26,9 @@ services:
     build:
       context: .
       dockerfile: WordpressDockerfile
-    # image: wordpress:5.8.3-fpm
-    # image: wordpress:5.8.3-apache
     container_name: ${APP_NAME}-wordpress
     restart: unless-stopped
     # ports:
-      # - 8090:9000
       # - 8080:80
     volumes:
       - ./src:/var/www/html:rw,cached
