@@ -13,3 +13,12 @@ C:\Windows\System32\drivers\etc\host
 ssl_certificate           /etc/certs/certificate.pem;
 ssl_certificate_key       /etc/certs/certificate-key.pem;
 ```
+### Tenemos que crear un archivo en la raíz llamado. env en el cual vamos a poner el nombre y las credenciales de la base de datos 
+```Shell
+DOMAIN=www.practica.com
+APP_NAME=www.practica.com
+DB_NAME=admin
+DB_USER=admin
+DB_ROOT_PASSWORD=P@ssw0rd
+DB_PASSWORD=P@ssw0rd
+```
