@@ -22,3 +22,8 @@ DB_USER=admin
 DB_ROOT_PASSWORD=P@ssw0rd
 DB_PASSWORD=P@ssw0rd
 ```
+### En el archivo doker-compose.yaml tendremos que eliminar la línea 68 y 69 para que se pueda ejecutar el archivo creado anterior mente
+```Shell
+Links:
+-mysql:mysql
+```
