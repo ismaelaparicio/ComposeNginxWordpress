@@ -27,3 +27,4 @@ DB_PASSWORD=P@ssw0rd
 Links:
 -mysql:mysql
 ```
+### Una vez echo los cambios y añadido los certificados ya podemos arrancar el docker con docker-compose up. Una vez levantado el docker podemos acceder atraves de un navegador con la dirección localhost:(el puerto en el que hemos levantado el servicio). Por defecto el puerto 8082(PhPmyadmin), 8025(Servidor Mail), 
